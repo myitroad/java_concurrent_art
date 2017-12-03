@@ -4,90 +4,95 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by xdcao on 2017/5/4.
+ * <p>
+ * 线程池接口的默认实现
  */
 public class DefaultThreadPool<Job extends Runnable> implements ThreadPool<Job> {
 
-    private static final int MAX_WORKER_NUMBERS=10;
-
-    private static final int DEFAULT_WORKER_NUMBERS=5;
-
-    private static final int MIN_WORKER_NUMBERS=1;
-
-    private final LinkedList<Job> jobs=new LinkedList<Job>();
-
-    private final List<Worker> workers= Collections.synchronizedList(new ArrayList<Worker>());
-
-    private int workerNum=DEFAULT_WORKER_NUMBERS;
-
-    private AtomicLong threadNum=new AtomicLong();
+    //线程池最大限制数
+    private static final int MAX_WORKER_NUMBERS = 10;
+    //线程池默认的数量
+    private static final int DEFAULT_WORKER_NUMBERS = 5;
+    //线程池最小的数量
+    private static final int MIN_WORKER_NUMBERS = 1;
+    //这是一个工作列表，将会向里面插入工作
+    private final LinkedList<Job> jobs = new LinkedList<Job>();
+    //工作者列表
+    private final List<Worker> workers = Collections.synchronizedList(new ArrayList<Worker>());
+    //工作者线程的数量
+    private int workerNum = DEFAULT_WORKER_NUMBERS;
+    //线程编号生成
+    private AtomicLong threadNum = new AtomicLong();
 
 
     public DefaultThreadPool() {
         initializeWorkers(DEFAULT_WORKER_NUMBERS);
     }
 
-    public DefaultThreadPool(int workerNum){
-        this.workerNum=workerNum>MAX_WORKER_NUMBERS?MAX_WORKER_NUMBERS:workerNum<MIN_WORKER_NUMBERS?MIN_WORKER_NUMBERS:workerNum;
+    public DefaultThreadPool(int workerNum) {
+        this.workerNum = workerNum > MAX_WORKER_NUMBERS ? MAX_WORKER_NUMBERS : workerNum < MIN_WORKER_NUMBERS ? MIN_WORKER_NUMBERS : workerNum;
         initializeWorkers(workerNum);
     }
 
     private void initializeWorkers(int defaultWorkerNumbers) {
-        for (int i=0;i<defaultWorkerNumbers;i++){
-            Worker worker=new Worker();
+        for (int i = 0; i < defaultWorkerNumbers; i++) {
+            Worker worker = new Worker();
             workers.add(worker);
-            Thread thread=new Thread(worker,"ThreadPool-worker-"+threadNum.incrementAndGet());
+            Thread thread = new Thread(worker, "ThreadPool-worker-" + threadNum.incrementAndGet());
             thread.start();
         }
     }
 
     @Override
     public void execute(Job job) {
-        if(job!=null){
-            synchronized (jobs){
+        if (job != null) {
+            //添加一个工作，然后进行通知
+            synchronized (jobs) {
                 jobs.addLast(job);
-                jobs.notify();
+                jobs.notify();//使用notify，而不是notifyAll
             }
         }
     }
 
     @Override
     public void shutDown() {
-        for (Worker worker:workers){
+        for (Worker worker : workers) {
             worker.shutDown();
         }
     }
 
     @Override
     public void addWorkers(int num) {
-        synchronized (jobs){
-            if(num+this.workerNum>MAX_WORKER_NUMBERS){
-                num=MAX_WORKER_NUMBERS-this.workerNum;
+        synchronized (jobs) {
+            //限制新增的  Worker数量不能超过最大值
+            if (num + this.workerNum > MAX_WORKER_NUMBERS) {
+                num = MAX_WORKER_NUMBERS - this.workerNum;
             }
             initializeWorkers(num);
-            this.workerNum+=num;
+            this.workerNum += num;
         }
     }
 
     @Override
     public void removeWorker(int num) {
-        synchronized (jobs){
-            if(num>=this.workerNum){
+        synchronized (jobs) {
+            if (num >= this.workerNum) {
                 throw new IllegalArgumentException("beyond workNum");
             }
-            int count=0;
-            while (count<num){
-                Worker worker=workers.get(count);
-                if(workers.remove(worker)){
+            //按照给定的数量停止Worker
+            int count = 0;
+            while (count < num) {
+                Worker worker = workers.get(count);
+                if (workers.remove(worker)) {
                     worker.shutDown();
                     count++;
                 }
             }
-            this.workerNum-=count;
+            this.workerNum -= count;
         }
     }
 
@@ -96,38 +101,50 @@ public class DefaultThreadPool<Job extends Runnable> implements ThreadPool<Job> 
         return jobs.size();
     }
 
+    //初始化线程工作者
+    private void initializeWokers(int num) {
+        for (int i = 0; i < num; i++) {
+            Worker worker = new Worker();
+            workers.add(worker);
+            Thread thread = new Thread(worker, "ThreadPool-Worker-" + threadNum.
+                    incrementAndGet());
+            thread.start();
+        }
+    }
 
-    class Worker implements Runnable{
-
-        private volatile boolean isRunning=false;
-
+    //工作者，负责消费任务
+    class Worker implements Runnable {
+        private volatile boolean isRunning = false;
         @Override
         public void run() {
-            while (isRunning){
-                Job job=null;
-                synchronized (jobs){
-                    while (jobs.isEmpty()){
+            while (isRunning) {
+                Job job = null;
+                synchronized (jobs) {
+                    //如果工作者列表是空的，那么就  wait
+                    while (jobs.isEmpty()) {
                         try {
                             jobs.wait();
-                        }catch (InterruptedException e){
+                        } catch (InterruptedException e) {
+                            //感知到外部对WorkerThread 的中断操作，返回
                             Thread.currentThread().interrupt();
                             return;
                         }
                     }
-                    job=jobs.removeFirst();
+                    //取出一个JOB
+                    job = jobs.removeFirst();
                 }
-                if (job!=null){
+                if (job != null) {
                     try {
                         job.run();
-                    }catch (Exception e){
-
+                    } catch (Exception e) {
+                        System.out.println(e);
                     }
                 }
             }
         }
 
         public void shutDown() {
-            isRunning=false;
+            isRunning = false;
         }
     }
 
