@@ -7,41 +7,49 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * Created by xdcao on 2017/5/5.
+ *
+ * 独占锁Mutex是一个自定义同步组件，它在同一时刻只允许一个线程占有锁。
+ * Mutex中定义了一个静态内部类，该内部类继承了同步器并实现了独占式获取和释放同步状态。
  */
 public class Mutex implements Lock {
 
-    private static class Sync extends AbstractQueuedSynchronizer{
-
+    //静态内部类，自定义同步器
+    private static class Sync extends AbstractQueuedSynchronizer {
+        //是否处于占用状态
         @Override
         protected boolean isHeldExclusively() {
-            return getState()==1;
+            return getState() == 1;
         }
 
+        //当状态为0 的时候获取锁
         @Override
         protected boolean tryAcquire(int acqiures) {
-            if(compareAndSetState(0,1)){
+            if (compareAndSetState(0, 1)) {
                 setExclusiveOwnerThread(Thread.currentThread());
                 return true;
             }
             return false;
         }
 
+        //释放锁，将状态设置为0
         @Override
         protected boolean tryRelease(int releases) {
-            if (getState()==0)
+            if (getState() == 0)
                 throw new IllegalMonitorStateException();
             setExclusiveOwnerThread(null);
             setState(0);
             return true;
         }
 
-        Condition newCondition(){
+        //返回一个 Condition，每个 condition 都包含了一个condition 队列
+        Condition newCondition() {
             return new ConditionObject();
         }
 
     }
 
-    private final Sync sync=new Sync();
+    //仅需要将操作代理到Sync上即可
+    private final Sync sync = new Sync();
 
     @Override
     public void lock() {
@@ -60,7 +68,7 @@ public class Mutex implements Lock {
 
     @Override
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        return sync.tryAcquireNanos(1,unit.toNanos(time));
+        return sync.tryAcquireNanos(1, unit.toNanos(time));
     }
 
     @Override
@@ -73,11 +81,11 @@ public class Mutex implements Lock {
         return sync.newCondition();
     }
 
-    public boolean isLocked(){
+    public boolean isLocked() {
         return sync.isHeldExclusively();
     }
 
-    public boolean hasQueuedThreads(){
+    public boolean hasQueuedThreads() {
         return sync.hasQueuedThreads();
     }
 
