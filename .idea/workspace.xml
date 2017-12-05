@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="81f7aeb0-72a3-4e1d-b6c9-dd9d3f176109" name="Default" comment="ignored">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
     </list>
@@ -497,7 +494,7 @@
       <updated>1512304281421</updated>
       <workItem from="1512304282920" duration="5126000" />
       <workItem from="1512397929358" duration="1112000" />
-      <workItem from="1512483637080" duration="6967000" />
+      <workItem from="1512483637080" duration="7088000" />
     </task>
     <task id="LOCAL-00001" summary="完善第四章的例子，去掉intelliJ 构建信息">
       <created>1512304366094</created>
@@ -527,7 +524,14 @@
       <option name="project" value="LOCAL" />
       <updated>1512490743747</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="删除idea项目构建信息">
+      <created>1512490952336</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1512490952336</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -563,7 +567,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13205000" />
+    <option name="totallyTimeSpent" value="13326000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
@@ -610,7 +614,8 @@
     <MESSAGE value="更新第四章代码" />
     <MESSAGE value="添加注释" />
     <MESSAGE value="增加pom文件和junit测试工具依赖" />
-    <option name="LAST_COMMIT_MESSAGE" value="增加pom文件和junit测试工具依赖" />
+    <MESSAGE value="删除idea项目构建信息" />
+    <option name="LAST_COMMIT_MESSAGE" value="删除idea项目构建信息" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
