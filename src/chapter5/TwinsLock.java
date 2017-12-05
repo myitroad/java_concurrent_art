@@ -7,6 +7,7 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * Created by xdcao on 2017/5/8.
+ * 设计一个同步工具：该工具在同一时刻，只允许至多两个线程同时访问，超过两个线程的 访问将被阻塞，我们将这个同步工具命名为TwinsLock。
  */
 public class TwinsLock implements Lock {
 
