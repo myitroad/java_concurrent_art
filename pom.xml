@@ -17,6 +17,8 @@
     </dependencies>
 
     <build>
+        <finalName>java-concurrent-art</finalName>
+        <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
