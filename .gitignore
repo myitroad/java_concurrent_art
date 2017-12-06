@@ -1,3 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 /.idea/
 /java_concurrent_art.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/workspace.xml
